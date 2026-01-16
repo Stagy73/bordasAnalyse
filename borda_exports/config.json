@@ -1,0 +1,13 @@
+{
+  "exports": [
+    {
+      "id": "20260115_181216",
+      "name": "export_turfbzh_20260115",
+      "path": "/home/nisenfeng/bordasAnalyse/borda_exports/20260115_181216.csv",
+      "date_added": "2026-01-15T18:12:16.182468",
+      "num_borda": 13,
+      "size_kb": 335.2080078125
+    }
+  ],
+  "default": "20260115_181216"
+}
