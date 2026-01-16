@@ -240,11 +240,21 @@ class GlobalPredictionEngine:
         for course in courses:
             course_df = df[df['Course'] == course].copy()
             
+            # DÉDUPLICATION IMMÉDIATE : Garder UNE SEULE ligne par cheval
+            # En cas de doublons, garder la première occurrence
+            if 'Numero' in course_df.columns:
+                nb_avant_dedup = len(course_df)
+                course_df = course_df.drop_duplicates(subset=['Numero'], keep='first').reset_index(drop=True)
+                nb_apres_dedup = len(course_df)
+                
+                if nb_avant_dedup != nb_apres_dedup:
+                    print(f"⚠️ {course}: {nb_avant_dedup - nb_apres_dedup} doublons retirés ({nb_avant_dedup} → {nb_apres_dedup})")
+            
             # Infos de la course
             hippodrome = course_df['hippodrome'].iloc[0]
             heure = course_df['heure'].iloc[0] if 'heure' in course_df.columns else 'N/A'
             distance = course_df['distance'].iloc[0] if 'distance' in course_df.columns else 'N/A'
-            nb_partants = len(course_df)
+            nb_partants = len(course_df)  # Maintenant c'est le BON nombre
             
             # Utiliser la config manuelle si disponible
             if race_config and course in race_config:
@@ -646,7 +656,43 @@ def display_global_predictions():
             courses = sorted(all_preds['Course'].unique())
             selected_course = st.selectbox("Choisir une course:", courses)
             
-            course_data = all_preds[all_preds['Course'] == selected_course].sort_values('Score', ascending=False).reset_index(drop=True)
+            course_data = all_preds[all_preds['Course'] == selected_course].copy()
+            
+            # DEBUG COMPLET
+            st.write(f"🔍 **DEBUG DÉTAILLÉ pour {selected_course}:**")
+            st.write(f"- Lignes totales dans all_preds: {len(all_preds)}")
+            st.write(f"- Lignes pour cette course: {len(course_data)}")
+            
+            # Afficher les numéros de chevaux
+            if 'Numero' in course_data.columns:
+                numeros = sorted(course_data['Numero'].unique())
+                st.write(f"- Numéros de chevaux: {numeros}")
+                st.write(f"- Nombre de numéros uniques: {len(numeros)}")
+            
+            # Vérifier les doublons
+            if 'Numero' in course_data.columns and 'Cheval' in course_data.columns:
+                duplicates = course_data[course_data.duplicated(subset=['Numero', 'Cheval'], keep=False)]
+                if len(duplicates) > 0:
+                    st.error(f"❌ {len(duplicates)} lignes en doublon détectées !")
+                    st.dataframe(duplicates[['Numero', 'Cheval', 'Score']])
+            
+            # DÉDUPLICATION : S'assurer qu'il n'y a pas de doublons
+            nb_avant = len(course_data)
+            if 'Numero' in course_data.columns and 'Cheval' in course_data.columns:
+                course_data = course_data.sort_values('Score', ascending=False).drop_duplicates(
+                    subset=['Numero', 'Cheval'], keep='first'
+                ).reset_index(drop=True)
+            else:
+                course_data = course_data.sort_values('Score', ascending=False).drop_duplicates(
+                    subset=['Numero'], keep='first'
+                ).reset_index(drop=True)
+            
+            nb_apres = len(course_data)
+            
+            if nb_avant != nb_apres:
+                st.warning(f"⚠️ {nb_avant - nb_apres} doublons retirés ({nb_avant} → {nb_apres} chevaux)")
+            else:
+                st.success(f"✅ Aucun doublon ({nb_apres} chevaux)")
             
             # Infos de la course
             info = course_data.iloc[0]

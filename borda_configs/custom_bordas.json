@@ -1,0 +1,26 @@
+{
+  "borda_par_d\u00e9faut": {
+    "name": "Borda par D\u00e9faut",
+    "criteria": {
+      "ELO Cheval": 30,
+      "ELO Jockey": 25,
+      "ELO Entraineur": 20,
+      "Turf Points": 30,
+      "Top 1 IA": 20,
+      "Top 2 IA": 15,
+      "Cote BZH": 20,
+      "Taux de Victoire": 20,
+      "Gains Course": 25,
+      "Popularit\u00e9": 15,
+      "TPJ 90": 20,
+      "Repos": 10,
+      "Sigma": 15,
+      "Note IA": 15
+    },
+    "hippodrome": "Nantes",
+    "discipline": "M",
+    "nb_partants_range": null,
+    "created_at": "2026-01-16T17:44:55.774703",
+    "total_points": 280
+  }
+}
